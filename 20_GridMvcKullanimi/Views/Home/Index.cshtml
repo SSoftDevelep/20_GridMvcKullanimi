@@ -1,0 +1,134 @@
+﻿@using GridMvc.Html
+@model IEnumerable<_20_GridMvcKullanimi.Controllers.HomeController.Kisi>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GridMvc Sample</title>
+    <link href="~/Content/Gridmvc.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/gridmvc.datepicker.min.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/gridmvc.min.js"></script>
+    <script src="~/Scripts/bootstrap-datepicker.js"></script>
+    <script src="~/Scripts/gridmvc.lang.tr.js"></script>
+    <script src="~/Scripts/gridmvc.customwidgets.js"></script>
+</head>
+
+<body>
+    <div>
+
+        @Html.Grid(Model).Named("Kisiler1").Columns(col =>
+   {
+       col.Add().Encoded(false).Sanitized(false).RenderValueAs(html =>
+       {
+
+           string htmlString = "<a href='/Home/Edit" + html.Id.ToString() + "'class='btn btn-warning'><span class='glyphicon glyphicon-edit'></span> Düzenle</a>";
+           return MvcHtmlString.Create(htmlString);
+
+
+       }).SetWidth(30);
+
+       col.Add().Encoded(false).Sanitized(false).RenderValueAs(html =>
+       {
+           string htmlString = "<a href='/Home/Delete" + html.Id.ToString() + "' class='btn btn-danger'><span class='glyphicon glyphicon-remove'> Sil</a>";
+           return MvcHtmlString.Create(htmlString);
+
+
+       }).SetWidth(30);
+
+       col.Add().Encoded(false).Sanitized(false).RenderValueAs(x =>
+       Html.ActionLink("Detaylar", "Detail", new { id = x.Id }, new { @class = "btn btn-info" })).SetWidth(30);
+
+       col.Add().Encoded(false).Sanitized(false).RenderValueAs(x => Html.CheckBox("selecter",false)).SetWidth(30);
+
+       col.Add(x => x.Id, true);
+       col.Add(x => x.FullName).RenderValueAs(x => x.FullName + "(" + x.Age.ToString() + ")").Titled("Ad-Soyad").Filterable(true).Sortable(true).SetFilterWidgetType("CustomCompanyNameFilterWidget"); /* Sortable; sirali, filterable; filtreli*/
+       col.Add(x => x.Age, true).Titled("Yaş").Sortable(true); /*x.Age,true dersek kolonu gizleriz.*/
+       col.Add(x => x.BirthDate).Format("{0:dd.MM.yyyy}")
+       .Titled("Dogum Tarihi").Filterable(true).Sortable(true);
+       col.Add(x => x.isActive).RenderValueAs(x => (x.isActive) ? "evet" : "hayir").Titled("Aktif mi").Filterable(true);
+
+   }).WithPaging(5,6,"gridview1_page").SetLanguage("tr")  @*Pagging(sayfalama) icine her sayfada kac adet oldugunu yaziyoruz.*@
+    </div>
+
+
+    @*@Html.Grid(Model).Named("Kisiler2").Columns(col =>
+{
+    col.Add().Encoded(false).Sanitized(false).RenderValueAs(html =>
+    {
+
+        string htmlString = "<a href='/Home/Edit" + html.Id.ToString() + "'class='btn btn-warning'><span class='glyphicon glyphicon-edit'></span> Düzenle</a>";
+        return MvcHtmlString.Create(htmlString);
+
+
+    }).SetWidth(30);
+
+    col.Add().Encoded(false).Sanitized(false).RenderValueAs(html =>
+    {
+        string htmlString = "<a href='/Home/Delete" + html.Id.ToString() + "' class='btn btn-danger'><span class='glyphicon glyphicon-remove'> Sil</a>";
+        return MvcHtmlString.Create(htmlString);
+
+
+    }).SetWidth(30);
+
+    col.Add().Encoded(false).Sanitized(false).RenderValueAs(x =>
+    Html.ActionLink("Detaylar", "Detail", new { id = x.Id }, new { @class = "btn btn-info" })).SetWidth(30);
+
+    col.Add().Encoded(false).Sanitized(false).RenderValueAs(x => Html.CheckBox("selecter", false)).SetWidth(30);
+
+    col.Add(x => x.Id, true);
+    col.Add(x => x.FullName).RenderValueAs(x => x.FullName + "(" + x.Age.ToString() + ")").Titled("Ad-Soyad").Filterable(true).Sortable(true); /* Sortable; sirali, filterable; filtreli*/
+    col.Add(x => x.Age, true).Titled("Yaş").Sortable(true); /*x.Age,true dersek kolonu gizleriz.*/
+    col.Add(x => x.BirthDate).Format("{0:dd.MM.yyyy}")
+    .Titled("Dogum Tarihi").Filterable(true).Sortable(true);
+    col.Add(x => x.isActive).RenderValueAs(x => (x.isActive) ? "evet" : "hayir").Titled("Aktif mi").Filterable(true);
+
+}).WithPaging(5,6, "gridview2_page").SetLanguage("tr")*@
+
+
+    <div id="detaylar">
+        <span class="bolder">ID :</span><span id="kisiId"></span> <br />
+        <span class="bolder">Tam Adi :</span><span id="kisiFullName"></span> <br />
+        <span class="bolder">Yas :</span><span id="kisiAge"></span> <br />
+        <span class="bolder">Dogum Tarihi :</span><span id="kisiBirthDate"></span> <br />
+        <span class="bolder">Aktif mi :</span><span id="kisiIsActive"></span> <br />
+    </div>
+    <script>
+
+        $(function () {
+            pageGrids.Kisiler1.onRowSelect(function (e) {  //tiklanan satirin datasini e parametresine otomatik atiyor.
+                var data = e.row;
+                $("#kisiId").text(data.Id);
+                $("#kisiFullName").text(data.FullName);
+                $("#kisiAge").text(data.Age);
+                $("#kisiBirthDate").text(data.BirthDate);
+                $("#kisiIsActive").text(data.isActive);
+            });
+
+            pageGrids.Kisiler1.addFilterWidget(new CustomersFilterWidget());
+        })
+
+    </script>
+
+    <style>
+        .bolder {
+            font-weight: bold;
+        }
+
+        #detaylar {
+            display: block;
+            margin: 10px;
+            font-size: 14px;
+        }
+    </style>
+</body>
+</html>
+
